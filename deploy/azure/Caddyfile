@@ -1,0 +1,88 @@
+# =============================================================================
+# Slothwatching - Azure VM Caddyfile
+# =============================================================================
+# 域名由 .env 中的 SITE_ADDRESS 注入（默认使用 Azure 的
+# <dnsLabel>.<region>.cloudapp.azure.com）。Caddy 会自动向 Let's Encrypt
+# 申请并续期证书，无需手动配置。
+#
+# 关键点：AI 网关有大量 SSE 长流式响应，所以这里
+#   - 不压缩 text/event-stream（Caddy 对无 Content-Length 的响应自动即时 flush）
+#   - 上游 transport 不设响应超时
+#   - 空闲连接超时放宽到 10 分钟
+# =============================================================================
+
+{
+	email {$ACME_EMAIL}
+	servers {
+		max_header_size 64KB
+		timeouts {
+			read_header 10s
+			idle 10m
+		}
+	}
+}
+
+{$SITE_ADDRESS} {
+	tls {
+		protocols tls1.2 tls1.3
+	}
+
+	reverse_proxy slothwatching:8080 {
+		health_uri /health
+		health_interval 30s
+		health_timeout 10s
+		health_status 200
+
+		# 由实际 TCP 对端生成转发头，避免透传客户端伪造的值
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {host}
+
+		transport http {
+			keepalive 120s
+			keepalive_idle_conns 256
+			read_buffer 16KB
+			write_buffer 16KB
+			compression off
+		}
+
+		fail_duration 30s
+		max_fails 3
+		unhealthy_status 500 502 503 504
+	}
+
+	# 注意：不要匹配 text/*，否则 text/event-stream 会被压缩并缓冲到流结束
+	encode {
+		zstd
+		gzip 6
+		minimum_length 256
+		match {
+			header Content-Type text/css*
+			header Content-Type text/html*
+			header Content-Type text/javascript*
+			header Content-Type text/plain*
+			header Content-Type application/json*
+			header Content-Type application/javascript*
+			header Content-Type image/svg+xml*
+		}
+	}
+
+	request_body {
+		max_size 256MB
+	}
+
+	log {
+		output file /var/log/caddy/slothwatching.log {
+			roll_size 50mb
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format json
+		level INFO
+	}
+
+	handle_errors {
+		respond "{err.status_code} {err.status_text}"
+	}
+}

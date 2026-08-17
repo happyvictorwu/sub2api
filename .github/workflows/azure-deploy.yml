@@ -1,0 +1,181 @@
+# =============================================================================
+# Deploy to Azure
+# =============================================================================
+# 流程：构建镜像 -> 推送 GHCR -> SSH 到 Azure VM 上滚动更新
+#
+# 需要的 Repository Secrets（由 deploy/azure/bootstrap.sh 输出）：
+#   AZURE_VM_HOST     VM 的公网域名，如 xxx.southeastasia.cloudapp.azure.com
+#   AZURE_VM_USER     VM 登录用户名，默认 azureuser
+#   AZURE_VM_SSH_KEY  部署用 SSH 私钥（完整内容）
+# =============================================================================
+
+name: Deploy to Azure
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+  workflow_dispatch:
+    inputs:
+      skip_build:
+        description: '跳过构建，直接用 latest 镜像重新部署'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: azure-deploy
+  cancel-in-progress: false
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. 构建镜像并推送到 GHCR
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build & push image
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.skip_build != 'true' }}
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute image tags
+        id: meta
+        run: |
+          REPO_LC="${GITHUB_REPOSITORY,,}"
+          IMAGE="ghcr.io/${REPO_LC}"
+          SHORT_SHA="${GITHUB_SHA::7}"
+          # 版本号：优先用最近的 tag，没有 tag 时退回 VERSION 文件 + 短 SHA
+          VERSION="$(git describe --tags --always --match 'v[0-9]*' 2>/dev/null || true)"
+          VERSION="${VERSION#v}"
+          if [ -z "${VERSION}" ]; then
+            VERSION="$(tr -d '\r\n' < backend/cmd/server/VERSION)-${SHORT_SHA}"
+          fi
+          echo "image=${IMAGE}:sha-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "image_base=${IMAGE}" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "构建版本: ${VERSION}  镜像: ${IMAGE}:sha-${SHORT_SHA}"
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            ${{ steps.meta.outputs.image }}
+            ${{ steps.meta.outputs.image_base }}:latest
+          build-args: |
+            VERSION=${{ steps.meta.outputs.version }}
+            COMMIT=${{ github.sha }}
+            GOPROXY=https://proxy.golang.org,direct
+            GOSUMDB=sum.golang.org
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ---------------------------------------------------------------------------
+  # 2. 部署到 Azure VM
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: Deploy to VM
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: ${{ always() && (needs.build.result == 'success' || github.event.inputs.skip_build == 'true') }}
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Resolve image reference
+        id: image
+        run: |
+          if [ -n "${{ needs.build.outputs.image }}" ]; then
+            echo "ref=${{ needs.build.outputs.image }}" >> "$GITHUB_OUTPUT"
+          else
+            REPO_LC="${GITHUB_REPOSITORY,,}"
+            echo "ref=ghcr.io/${REPO_LC}:latest" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.AZURE_VM_SSH_KEY }}
+          VM_HOST: ${{ secrets.AZURE_VM_HOST }}
+        run: |
+          test -n "$VM_HOST" || { echo "::error::缺少 Secret AZURE_VM_HOST"; exit 1; }
+          test -n "$SSH_KEY" || { echo "::error::缺少 Secret AZURE_VM_SSH_KEY"; exit 1; }
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -T 15 -H "$VM_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          test -s ~/.ssh/known_hosts || { echo "::error::无法连接 $VM_HOST:22，请检查 NSG 规则"; exit 1; }
+
+      - name: Sync compose files to VM
+        env:
+          VM_HOST: ${{ secrets.AZURE_VM_HOST }}
+          VM_USER: ${{ secrets.AZURE_VM_USER }}
+        run: |
+          scp -i ~/.ssh/deploy_key \
+            deploy/docker-compose.yml \
+            deploy/azure/docker-compose.azure.yml \
+            deploy/azure/Caddyfile \
+            "${VM_USER}@${VM_HOST}:/opt/slothwatching/"
+
+      - name: Deploy
+        env:
+          VM_HOST: ${{ secrets.AZURE_VM_HOST }}
+          VM_USER: ${{ secrets.AZURE_VM_USER }}
+          APP_IMAGE: ${{ steps.image.outputs.ref }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ssh -i ~/.ssh/deploy_key "${VM_USER}@${VM_HOST}" \
+            "APP_IMAGE='${APP_IMAGE}' GHCR_USER='${{ github.actor }}' GHCR_TOKEN='${GHCR_TOKEN}' bash -s" \
+            < deploy/azure/remote-deploy.sh
+
+      - name: Smoke test
+        env:
+          VM_HOST: ${{ secrets.AZURE_VM_HOST }}
+        run: |
+          for i in $(seq 1 10); do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "https://${VM_HOST}/health" || echo 000)
+            if [ "$CODE" = "200" ]; then
+              echo "✅ https://${VM_HOST}/health -> 200"
+              echo "### 部署成功 :rocket:" >> "$GITHUB_STEP_SUMMARY"
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+              echo "- 访问地址: https://${VM_HOST}" >> "$GITHUB_STEP_SUMMARY"
+              echo "- 镜像: \`${{ steps.image.outputs.ref }}\`" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "第 ${i}/10 次探测返回 ${CODE}（证书首次签发可能需要 1-2 分钟），5 秒后重试..."
+            sleep 5
+          done
+          echo "::warning::HTTPS 健康检查未通过，容器可能已启动但证书尚未签发。请检查 Caddy 日志：docker logs slothwatching-caddy"
+
+      - name: Cleanup
+        if: always()
+        run: rm -f ~/.ssh/deploy_key

@@ -1,0 +1,60 @@
+# =============================================================================
+# Slothwatching on Azure - Compose 覆盖层（overlay）
+# =============================================================================
+# 与仓库自带的 deploy/docker-compose.yml 叠加使用：
+#
+#   docker compose -f docker-compose.yml -f docker-compose.azure.yml up -d
+#
+# 这里只做三件事：
+#   1. 把镜像换成 CI 推送到 GHCR 的镜像（APP_IMAGE）
+#   2. 加一个 Caddy 反向代理，自动申请 Let's Encrypt 证书（HTTPS）
+#   3. 把应用端口收回本机（.env 里设置 BIND_HOST=127.0.0.1），公网只走 Caddy
+#
+# Postgres / Redis 仍然由 base 文件提供，跑在同一台 VM 上。
+# =============================================================================
+
+services:
+  slothwatching:
+    image: ${APP_IMAGE:?APP_IMAGE is required, e.g. ghcr.io/happyvictorwu/sub2api:latest}
+    environment:
+      # 邮件里的密码重置等外链会用这个地址
+      - SERVER_FRONTEND_URL=${SITE_URL:-}
+
+  # ===========================================================================
+  # Caddy：TLS 终止 + 反向代理
+  # ===========================================================================
+  caddy:
+    image: caddy:2-alpine
+    container_name: slothwatching-caddy
+    restart: unless-stopped
+    depends_on:
+      - slothwatching
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - SITE_ADDRESS=${SITE_ADDRESS:?SITE_ADDRESS is required, e.g. slothwatching-xxx.southeastasia.cloudapp.azure.com}
+      - ACME_EMAIL=${ACME_EMAIL:-}
+      - TZ=${TZ:-Asia/Singapore}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      - caddy_logs:/var/log/caddy
+    networks:
+      - slothwatching-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-T", "5", "-O", "/dev/null", "http://127.0.0.1:2019/config/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
+  caddy_logs:
+    driver: local

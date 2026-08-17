@@ -19,9 +19,9 @@ func TestValidateWebAuthnConfig(t *testing.T) {
 			configure: func(cfg *Config) {
 				cfg.WebAuthn = WebAuthnConfig{
 					Enabled:       true,
-					RPDisplayName: "Sub2API",
-					RPID:          "sub2api.example.com",
-					RPOrigins:     []string{"https://sub2api.example.com"},
+					RPDisplayName: "Slothwatching",
+					RPID:          "slothwatching.example.com",
+					RPOrigins:     []string{"https://slothwatching.example.com"},
 				}
 			},
 		},
@@ -30,7 +30,7 @@ func TestValidateWebAuthnConfig(t *testing.T) {
 			configure: func(cfg *Config) {
 				cfg.WebAuthn = WebAuthnConfig{
 					Enabled:       true,
-					RPDisplayName: "Sub2API Dev",
+					RPDisplayName: "Slothwatching Dev",
 					RPID:          "localhost",
 					RPOrigins:     []string{"http://localhost:5173"},
 				}
@@ -41,8 +41,8 @@ func TestValidateWebAuthnConfig(t *testing.T) {
 			configure: func(cfg *Config) {
 				cfg.WebAuthn = WebAuthnConfig{
 					Enabled:       true,
-					RPDisplayName: "Sub2API",
-					RPOrigins:     []string{"https://sub2api.example.com"},
+					RPDisplayName: "Slothwatching",
+					RPOrigins:     []string{"https://slothwatching.example.com"},
 				}
 			},
 			wantError: "webauthn.rp_id",
@@ -52,9 +52,9 @@ func TestValidateWebAuthnConfig(t *testing.T) {
 			configure: func(cfg *Config) {
 				cfg.WebAuthn = WebAuthnConfig{
 					Enabled:       true,
-					RPDisplayName: "Sub2API",
-					RPID:          "https://sub2api.example.com",
-					RPOrigins:     []string{"https://sub2api.example.com"},
+					RPDisplayName: "Slothwatching",
+					RPID:          "https://slothwatching.example.com",
+					RPOrigins:     []string{"https://slothwatching.example.com"},
 				}
 			},
 			wantError: "domain without scheme",
@@ -64,9 +64,9 @@ func TestValidateWebAuthnConfig(t *testing.T) {
 			configure: func(cfg *Config) {
 				cfg.WebAuthn = WebAuthnConfig{
 					Enabled:       true,
-					RPDisplayName: "Sub2API",
-					RPID:          "sub2api.example.com",
-					RPOrigins:     []string{"http://sub2api.example.com"},
+					RPDisplayName: "Slothwatching",
+					RPID:          "slothwatching.example.com",
+					RPOrigins:     []string{"http://slothwatching.example.com"},
 				}
 			},
 			wantError: "must use HTTPS",
@@ -76,7 +76,7 @@ func TestValidateWebAuthnConfig(t *testing.T) {
 			configure: func(cfg *Config) {
 				cfg.WebAuthn = WebAuthnConfig{
 					Enabled:       true,
-					RPDisplayName: "Sub2API",
+					RPDisplayName: "Slothwatching",
 					RPID:          "example.com",
 					RPOrigins:     []string{"https://example.net"},
 				}

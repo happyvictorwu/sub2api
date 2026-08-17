@@ -18,8 +18,8 @@ import (
 )
 
 const (
-	dataType       = "sub2api-data"
-	legacyDataType = "sub2api-bundle"
+	dataType       = "slothwatching-data"
+	legacyDataType = "slothwatching-bundle"
 	dataVersion    = 1
 	dataPageCap    = 1000
 )

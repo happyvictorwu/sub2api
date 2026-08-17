@@ -188,7 +188,7 @@ func TestOpenAIGatewayService_OAuthMessagesBridgeDoesNotInjectDefaultInstruction
 
 	rec := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(rec)
-	originalBody := []byte(`{"model":"gpt-5.5","stream":true,"prompt_cache_key":"anthropic-metadata-session-1","input":[{"type":"message","role":"developer","content":[{"type":"input_text","text":"<sub2api-claude-code-todo-guard>"}]},{"type":"message","role":"user","content":"hello"}]}`)
+	originalBody := []byte(`{"model":"gpt-5.5","stream":true,"prompt_cache_key":"anthropic-metadata-session-1","input":[{"type":"message","role":"developer","content":[{"type":"input_text","text":"<slothwatching-claude-code-todo-guard>"}]},{"type":"message","role":"user","content":"hello"}]}`)
 	c.Request = httptest.NewRequest(http.MethodPost, "/v1/responses", bytes.NewReader(originalBody))
 	c.Request.Header.Set("Content-Type", "application/json")
 
@@ -327,7 +327,7 @@ func captureStructuredLog(t *testing.T) (*inMemoryLogSink, func()) {
 	err := logger.Init(logger.InitOptions{
 		Level:       "debug",
 		Format:      "json",
-		ServiceName: "sub2api",
+		ServiceName: "slothwatching",
 		Environment: "test",
 		Output: logger.OutputOptions{
 			ToStdout: true,

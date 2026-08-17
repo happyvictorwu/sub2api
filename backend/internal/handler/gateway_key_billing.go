@@ -86,7 +86,7 @@ func buildKeyBillingInfo(apiKey *service.APIKey, resolvedRate float64, now time.
 	appliedPeak := apiKey.Group.PeakMultiplierAt(now)
 
 	response := keyBillingInfoResponse{
-		Object:                  "sub2api.key_billing",
+		Object:                  "slothwatching.key_billing",
 		SchemaVersion:           keyBillingInfoSchemaVersion,
 		BillingScope:            "token",
 		GroupRateMultiplier:     groupRate,

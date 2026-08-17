@@ -118,7 +118,7 @@ func resolveConvergedInstallationID(account *Account) string {
 	if deviceID := account.GetOpenAIDeviceID(); deviceID != "" {
 		return deviceID
 	}
-	return deriveStableUUIDv4(fmt.Sprintf("sub2api:codex-install-id:v1:%d", account.ID))
+	return deriveStableUUIDv4(fmt.Sprintf("slothwatching:codex-install-id:v1:%d", account.ID))
 }
 
 // resolveConvergedSessionID 返回账号级恒定的 session_id。
@@ -126,7 +126,7 @@ func resolveConvergedSessionID(account *Account) string {
 	if account == nil {
 		return ""
 	}
-	return deriveStableUUIDv4(fmt.Sprintf("sub2api:codex-session-id:v1:%d", account.ID))
+	return deriveStableUUIDv4(fmt.Sprintf("slothwatching:codex-session-id:v1:%d", account.ID))
 }
 
 // resolveConvergedThreadID 按客户端原始 session-id 确定性派生 thread_id。
@@ -136,7 +136,7 @@ func resolveConvergedThreadID(account *Account, clientSessionID string) string {
 	if account == nil || clientSessionID == "" {
 		return ""
 	}
-	return deriveStableUUIDv4(fmt.Sprintf("sub2api:codex-thread-id:v1:%d:%s", account.ID, clientSessionID))
+	return deriveStableUUIDv4(fmt.Sprintf("slothwatching:codex-thread-id:v1:%d:%s", account.ID, clientSessionID))
 }
 
 // codexFingerprintIDs 收敛后的完整 ID 集合。

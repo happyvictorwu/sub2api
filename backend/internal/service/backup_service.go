@@ -765,7 +765,7 @@ func (s *BackupService) createCompressedBackupFile(ctx context.Context) (string,
 	if err != nil {
 		return "", 0, fmt.Errorf("pg_dump: %w", err)
 	}
-	archive, err := os.CreateTemp("", "sub2api-backup-*.sql.gz")
+	archive, err := os.CreateTemp("", "slothwatching-backup-*.sql.gz")
 	if err != nil {
 		_ = dumpReader.Close()
 		return "", 0, fmt.Errorf("create backup archive: %w", err)
@@ -1066,7 +1066,7 @@ func (s *BackupService) downloadBackupParts(ctx context.Context, objectStore Bac
 		}
 	}
 
-	archive, err := os.CreateTemp("", "sub2api-restore-*.sql.gz")
+	archive, err := os.CreateTemp("", "slothwatching-restore-*.sql.gz")
 	if err != nil {
 		return "", fmt.Errorf("create restore archive: %w", err)
 	}

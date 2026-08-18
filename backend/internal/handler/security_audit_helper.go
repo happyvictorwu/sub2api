@@ -12,9 +12,9 @@ import (
 	"go.uber.org/zap"
 )
 
-const securityAuditCompletedContextKey = "slothwatching.security_audit.completed"
-const securityAuditWSTurnContextKey = "slothwatching.security_audit.ws_turn"
-const securityAuditWSDedupeContextKey = "slothwatching.security_audit.ws_dedupe"
+const securityAuditCompletedContextKey = "sub2api.security_audit.completed"
+const securityAuditWSTurnContextKey = "sub2api.security_audit.ws_turn"
+const securityAuditWSDedupeContextKey = "sub2api.security_audit.ws_dedupe"
 
 type securityAuditWSDedupeEntry struct {
 	stage    string

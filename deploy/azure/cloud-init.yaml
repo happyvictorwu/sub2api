@@ -1,6 +1,6 @@
 #cloud-config
 # =============================================================================
-# Slothwatching Azure VM 初始化
+# Sub2API Azure VM 初始化
 # 安装 Docker Engine + Compose 插件，准备部署目录，并做一些基础加固
 # =============================================================================
 
@@ -16,7 +16,7 @@ packages:
   - unattended-upgrades
 
 write_files:
-  - path: /etc/sysctl.d/99-slothwatching.conf
+  - path: /etc/sysctl.d/99-sub2api.conf
     content: |
       net.core.somaxconn = 65535
       net.ipv4.tcp_max_syn_backlog = 8192
@@ -46,7 +46,7 @@ runcmd:
   # 让首个普通用户（Azure adminUsername，uid 1000）可以直接用 docker
   # ---------------------------------------------------------------------------
   - 'APP_USER=$(getent passwd 1000 | cut -d: -f1); usermod -aG docker "$APP_USER"'
-  - 'APP_USER=$(getent passwd 1000 | cut -d: -f1); install -d -o "$APP_USER" -g "$APP_USER" -m 0755 /opt/slothwatching'
+  - 'APP_USER=$(getent passwd 1000 | cut -d: -f1); install -d -o "$APP_USER" -g "$APP_USER" -m 0755 /opt/sub2api'
 
   # ---------------------------------------------------------------------------
   # 2G swap：B 系列内存偏小，构建/迁移期间兜底
@@ -60,6 +60,6 @@ runcmd:
   - systemctl enable --now unattended-upgrades
 
   # 标记初始化完成，GitHub Actions 部署脚本会检查这个文件
-  - touch /opt/slothwatching/.cloud-init-done
+  - touch /opt/sub2api/.cloud-init-done
 
-final_message: "Slothwatching VM ready after $UPTIME seconds"
+final_message: "Sub2API VM ready after $UPTIME seconds"

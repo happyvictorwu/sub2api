@@ -230,9 +230,9 @@ func TestBuildDatabaseConnectionDSNsUsesPostgresForBootstrap(t *testing.T) {
 	cfg := &DatabaseConfig{
 		Host:     "db",
 		Port:     5432,
-		User:     "slothwatching",
+		User:     "sub2api",
 		Password: "secret",
-		DBName:   "slothwatching",
+		DBName:   "sub2api",
 		SSLMode:  "disable",
 	}
 
@@ -241,10 +241,10 @@ func TestBuildDatabaseConnectionDSNsUsesPostgresForBootstrap(t *testing.T) {
 	if !strings.Contains(bootstrapDSN, "dbname=postgres") {
 		t.Fatalf("bootstrap DSN = %q, want default postgres database", bootstrapDSN)
 	}
-	if strings.Contains(bootstrapDSN, "dbname=slothwatching") {
+	if strings.Contains(bootstrapDSN, "dbname=sub2api") {
 		t.Fatalf("bootstrap DSN = %q, should not connect to target database before checking/creating it", bootstrapDSN)
 	}
-	if !strings.Contains(targetDSN, "dbname=slothwatching") {
+	if !strings.Contains(targetDSN, "dbname=sub2api") {
 		t.Fatalf("target DSN = %q, want configured database", targetDSN)
 	}
 }

@@ -66,7 +66,7 @@ func TestIsAcceptableFingerprintUserAgent(t *testing.T) {
 		{"dev_build_suffix", "claude-cli/2.1.220-dev (external, cli)", false},
 		{"build_metadata_suffix", "claude-cli/2.1.220+build1 (external, cli)", false},
 
-		// 哨兵版本号：形态合法但主版本号远超 slothwatching 自身伪装版本。
+		// 哨兵版本号：形态合法但主版本号远超 sub2api 自身伪装版本。
 		{"sentinel_major", "claude-cli/999.0.0 (external, cli)", false},
 
 		{"empty", "", false},

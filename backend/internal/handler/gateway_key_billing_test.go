@@ -84,7 +84,7 @@ func TestGatewayHandlerKeyBillingInfoUsesGroupRate(t *testing.T) {
 	require.Equal(t, "no-store", w.Header().Get("Cache-Control"))
 	var got keyBillingInfoResponse
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &got))
-	require.Equal(t, "slothwatching.key_billing", got.Object)
+	require.Equal(t, "sub2api.key_billing", got.Object)
 	require.Equal(t, 1, got.SchemaVersion)
 	require.Equal(t, "token", got.BillingScope)
 	require.Equal(t, 0.75, got.GroupRateMultiplier)

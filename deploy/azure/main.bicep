@@ -1,5 +1,5 @@
 // =============================================================================
-// Slothwatching on Azure - Single VM + Docker Compose
+// Sub2API on Azure - Single VM + Docker Compose
 // =============================================================================
 // 部署内容：
 //   - 虚拟网络 / 子网 / 网络安全组（仅放行 22 / 80 / 443）
@@ -11,7 +11,7 @@
 // =============================================================================
 
 @description('资源名称前缀')
-param namePrefix string = 'slothwatching'
+param namePrefix string = 'sub2api'
 
 @description('部署区域，默认跟随资源组')
 param location string = resourceGroup().location

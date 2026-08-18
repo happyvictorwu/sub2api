@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Slothwatching on Azure - 一次性初始化脚本
+# Sub2API on Azure - 一次性初始化脚本
 # =============================================================================
 # 在你自己的电脑上运行（需要已安装并登录 Azure CLI：az login）。
 # 它会：
 #   1. 创建资源组和虚拟机（Bicep）
 #   2. 等待 cloud-init 装好 Docker
-#   3. 生成随机密钥并把 .env 写到 VM 的 /opt/slothwatching/
+#   3. 生成随机密钥并把 .env 写到 VM 的 /opt/sub2api/
 #   4. 打印需要配置到 GitHub 的 Secrets
 #
 # 用法：
@@ -19,13 +19,13 @@
 
 set -euo pipefail
 
-RESOURCE_GROUP="${RESOURCE_GROUP:-slothwatching-rg}"
+RESOURCE_GROUP="${RESOURCE_GROUP:-sub2api-rg}"
 LOCATION="${LOCATION:-southeastasia}"
-NAME_PREFIX="${NAME_PREFIX:-slothwatching}"
+NAME_PREFIX="${NAME_PREFIX:-sub2api}"
 VM_SIZE="${VM_SIZE:-Standard_B2s}"
 OS_DISK_SIZE_GB="${OS_DISK_SIZE_GB:-64}"
 ADMIN_USERNAME="${ADMIN_USERNAME:-azureuser}"
-SSH_KEY="${SSH_KEY:-$HOME/.ssh/slothwatching_azure}"
+SSH_KEY="${SSH_KEY:-$HOME/.ssh/sub2api_azure}"
 SSH_ALLOWED_CIDR="${SSH_ALLOWED_CIDR:-*}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@example.com}"
 APP_IMAGE="${APP_IMAGE:-ghcr.io/happyvictorwu/sub2api:latest}"
@@ -61,7 +61,7 @@ echo
 # -----------------------------------------------------------------------------
 if [[ ! -f "${SSH_KEY}" ]]; then
   info "生成 SSH 密钥：${SSH_KEY}"
-  ssh-keygen -t ed25519 -N '' -C "slothwatching-azure-deploy" -f "${SSH_KEY}" >/dev/null
+  ssh-keygen -t ed25519 -N '' -C "sub2api-azure-deploy" -f "${SSH_KEY}" >/dev/null
   ok "SSH 密钥已生成"
 else
   info "复用已有 SSH 密钥：${SSH_KEY}"
@@ -86,7 +86,7 @@ else
 info "部署虚拟机（首次约需 2-4 分钟）..."
 az deployment group create \
   --resource-group "${RESOURCE_GROUP}" \
-  --name "slothwatching-infra" \
+  --name "sub2api-infra" \
   --template-file "${SCRIPT_DIR}/main.bicep" \
   --parameters \
       namePrefix="${NAME_PREFIX}" \
@@ -98,8 +98,8 @@ az deployment group create \
       sshSourceAddressPrefix="${SSH_ALLOWED_CIDR}" \
   -o none
 
-FQDN="$(az deployment group show -g "${RESOURCE_GROUP}" -n slothwatching-infra --query properties.outputs.fqdn.value -o tsv)"
-PUBLIC_IP="$(az deployment group show -g "${RESOURCE_GROUP}" -n slothwatching-infra --query properties.outputs.publicIp.value -o tsv)"
+FQDN="$(az deployment group show -g "${RESOURCE_GROUP}" -n sub2api-infra --query properties.outputs.fqdn.value -o tsv)"
+PUBLIC_IP="$(az deployment group show -g "${RESOURCE_GROUP}" -n sub2api-infra --query properties.outputs.publicIp.value -o tsv)"
 ok "VM 就绪：${FQDN} (${PUBLIC_IP})"
 
 fi
@@ -111,7 +111,7 @@ SSH_OPTS=(-i "${SSH_KEY}" -o StrictHostKeyChecking=accept-new -o UserKnownHostsF
 # -----------------------------------------------------------------------------
 info "等待 cloud-init 完成（安装 Docker，约 2-5 分钟）..."
 for i in $(seq 1 60); do
-  if ssh "${SSH_OPTS[@]}" "${ADMIN_USERNAME}@${FQDN}" 'test -f /opt/slothwatching/.cloud-init-done' 2>/dev/null; then
+  if ssh "${SSH_OPTS[@]}" "${ADMIN_USERNAME}@${FQDN}" 'test -f /opt/sub2api/.cloud-init-done' 2>/dev/null; then
     ok "cloud-init 完成"
     break
   fi
@@ -122,8 +122,8 @@ done
 # -----------------------------------------------------------------------------
 # 4. 生成 .env 并上传（已存在则不覆盖，避免冲掉线上密钥）
 # -----------------------------------------------------------------------------
-if ssh "${SSH_OPTS[@]}" "${ADMIN_USERNAME}@${FQDN}" 'test -f /opt/slothwatching/.env'; then
-  warn "VM 上已存在 /opt/slothwatching/.env，跳过生成（如需重建请先手动备份删除）"
+if ssh "${SSH_OPTS[@]}" "${ADMIN_USERNAME}@${FQDN}" 'test -f /opt/sub2api/.env'; then
+  warn "VM 上已存在 /opt/sub2api/.env，跳过生成（如需重建请先手动备份删除）"
 else
   info "生成随机密钥并写入 VM..."
   POSTGRES_PASSWORD="$(openssl rand -hex 24)"
@@ -148,8 +148,8 @@ else
     -e "s|^ADMIN_PASSWORD=.*|ADMIN_PASSWORD=${ADMIN_PASSWORD}|" \
     "${SCRIPT_DIR}/env.azure.example" > "${TMP_ENV}"
 
-  scp "${SSH_OPTS[@]}" "${TMP_ENV}" "${ADMIN_USERNAME}@${FQDN}:/opt/slothwatching/.env" >/dev/null
-  ssh "${SSH_OPTS[@]}" "${ADMIN_USERNAME}@${FQDN}" 'chmod 600 /opt/slothwatching/.env'
+  scp "${SSH_OPTS[@]}" "${TMP_ENV}" "${ADMIN_USERNAME}@${FQDN}:/opt/sub2api/.env" >/dev/null
+  ssh "${SSH_OPTS[@]}" "${ADMIN_USERNAME}@${FQDN}" 'chmod 600 /opt/sub2api/.env'
   ok ".env 已写入 VM"
 
   echo

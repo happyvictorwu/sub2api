@@ -22,7 +22,7 @@ const (
 	quotaDimWeekly = "weekly"
 	quotaDimTotal  = "total"
 
-	defaultSiteName = "Slothwatching"
+	defaultSiteName = "Sub2API"
 )
 
 // quotaDimLabels maps dimension names to display labels.

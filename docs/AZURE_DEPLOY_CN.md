@@ -17,7 +17,7 @@
         │  xxx.southeastasia.cloudapp.azure.com    │
         │                                          │
         │   ┌────────┐   ┌───────────────┐         │
-        │   │ Caddy  │──▶│ slothwatching │         │
+        │   │ Caddy  │──▶│ sub2api │         │
         │   │ :80    │   │    :8080      │         │
         │   │ :443   │   └───────┬───────┘         │
         │   └────────┘           │                 │
@@ -44,7 +44,7 @@
 | **App Service for Containers** | 同样有约 **230 秒**的前端超时限制，同样不可调。 |
 | **单台 VM（本方案）** | 没有平台层代理超时；Caddy 的超时完全由我们自己控制。 |
 
-Slothwatching 是 AI API 网关，大量请求是长时间 SSE 流式响应，非流式的长思考请求也常常超过 4 分钟。所以选择没有平台硬超时的 VM 方案。
+Sub2API 是 AI API 网关，大量请求是长时间 SSE 流式响应，非流式的长思考请求也常常超过 4 分钟。所以选择没有平台硬超时的 VM 方案。
 
 另外三个次要理由：
 
@@ -109,7 +109,7 @@ cd deploy/azure
 ./bootstrap.sh
 ```
 
-默认参数：区域 `southeastasia`（新加坡）、规格 `Standard_B2s`、资源组 `slothwatching-rg`、时区 `Asia/Singapore`。
+默认参数：区域 `southeastasia`（新加坡）、规格 `Standard_B2s`、资源组 `sub2api-rg`、时区 `Asia/Singapore`。
 需要修改时用环境变量覆盖：
 
 ```bash
@@ -122,13 +122,13 @@ SSH_ALLOWED_CIDR="203.0.113.7/32" \
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `RESOURCE_GROUP` | `slothwatching-rg` | 资源组名 |
+| `RESOURCE_GROUP` | `sub2api-rg` | 资源组名 |
 | `LOCATION` | `southeastasia` | 区域 |
 | `VM_SIZE` | `Standard_B2s` | VM 规格 |
 | `OS_DISK_SIZE_GB` | `64` | 系统盘 |
 | `DNS_LABEL` | 自动随机 | 决定最终域名 `<label>.<region>.cloudapp.azure.com` |
 | `ADMIN_USERNAME` | `azureuser` | VM 登录用户 |
-| `SSH_KEY` | `~/.ssh/slothwatching_azure` | 不存在会自动生成 |
+| `SSH_KEY` | `~/.ssh/sub2api_azure` | 不存在会自动生成 |
 | `SSH_ALLOWED_CIDR` | `*` | **建议改成你的固定出口 IP** |
 | `ADMIN_EMAIL` | `admin@example.com` | 后台管理员账号 + Let's Encrypt 邮箱 |
 | `TIMEZONE` | `Asia/Singapore` | 影响统计口径和订阅到期时间 |
@@ -138,11 +138,11 @@ SSH_ALLOWED_CIDR="203.0.113.7/32" \
 1. 生成 SSH 密钥（如果没有）
 2. 创建资源组并部署 Bicep（2–4 分钟）
 3. 等待 cloud-init 装好 Docker（2–5 分钟）
-4. 生成随机的 `POSTGRES_PASSWORD` / `REDIS_PASSWORD` / `JWT_SECRET` / `TOTP_ENCRYPTION_KEY` / 管理员初始密码，写入 VM 的 `/opt/slothwatching/.env`
+4. 生成随机的 `POSTGRES_PASSWORD` / `REDIS_PASSWORD` / `JWT_SECRET` / `TOTP_ENCRYPTION_KEY` / 管理员初始密码，写入 VM 的 `/opt/sub2api/.env`
 5. 打印需要填到 GitHub 的三个 Secret
 
 > ⚠️ **管理员初始密码只会打印一次**，请立刻保存。
-> `.env` 只存在于 VM 上（`/opt/slothwatching/.env`，权限 600），不会进 Git。
+> `.env` 只存在于 VM 上（`/opt/sub2api/.env`，权限 600），不会进 Git。
 
 如果 `.env` 已存在，脚本不会覆盖——重复执行 `bootstrap.sh` 是安全的。
 
@@ -156,14 +156,14 @@ SSH_ALLOWED_CIDR="203.0.113.7/32" \
 |-----------|-----|
 | `AZURE_VM_HOST` | `xxx.southeastasia.cloudapp.azure.com`（bootstrap 输出） |
 | `AZURE_VM_USER` | `azureuser` |
-| `AZURE_VM_SSH_KEY` | `~/.ssh/slothwatching_azure` 私钥的完整内容（含 `-----BEGIN`/`-----END` 行） |
+| `AZURE_VM_SSH_KEY` | `~/.ssh/sub2api_azure` 私钥的完整内容（含 `-----BEGIN`/`-----END` 行） |
 
 装了 `gh` CLI 的话可以直接：
 
 ```bash
 gh secret set AZURE_VM_HOST   --body "xxx.southeastasia.cloudapp.azure.com"
 gh secret set AZURE_VM_USER   --body "azureuser"
-gh secret set AZURE_VM_SSH_KEY < ~/.ssh/slothwatching_azure
+gh secret set AZURE_VM_SSH_KEY < ~/.ssh/sub2api_azure
 ```
 
 不需要配置任何 Azure 凭据——CI 只通过 SSH 部署，不调用 Azure API。
@@ -202,8 +202,8 @@ https://xxx.southeastasia.cloudapp.azure.com
 先登录 VM：
 
 ```bash
-ssh -i ~/.ssh/slothwatching_azure azureuser@xxx.southeastasia.cloudapp.azure.com
-cd /opt/slothwatching
+ssh -i ~/.ssh/sub2api_azure azureuser@xxx.southeastasia.cloudapp.azure.com
+cd /opt/sub2api
 ```
 
 为方便，可以先定义别名：
@@ -215,12 +215,12 @@ alias dc='docker compose -f docker-compose.yml -f docker-compose.azure.yml'
 | 操作 | 命令 |
 |------|------|
 | 查看状态 | `dc ps` |
-| 应用日志 | `dc logs -f slothwatching` |
-| Caddy 日志（排查证书） | `docker logs -f slothwatching-caddy` |
-| 重启应用 | `dc restart slothwatching` |
+| 应用日志 | `dc logs -f sub2api` |
+| Caddy 日志（排查证书） | `docker logs -f sub2api-caddy` |
+| 重启应用 | `dc restart sub2api` |
 | 全部重启 | `dc up -d --force-recreate` |
 | 修改配置 | `nano .env` 然后 `dc up -d` |
-| 进入容器 | `docker exec -it slothwatching sh` |
+| 进入容器 | `docker exec -it sub2api sh` |
 | 磁盘占用 | `df -h && docker system df` |
 
 ### 修改配置
@@ -229,23 +229,23 @@ alias dc='docker compose -f docker-compose.yml -f docker-compose.azure.yml'
 
 ### 数据备份
 
-每次部署前 `remote-deploy.sh` 会自动做一次数据库快照，存在 `/opt/slothwatching/backups/`，保留最近 7 份。
+每次部署前 `remote-deploy.sh` 会自动做一次数据库快照，存在 `/opt/sub2api/backups/`，保留最近 7 份。
 
 手动备份：
 
 ```bash
-cd /opt/slothwatching
+cd /opt/sub2api
 source .env
-docker exec slothwatching-postgres pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+docker exec sub2api-postgres pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
   | gzip > "backups/manual-$(date +%Y%m%d).sql.gz"
 ```
 
 恢复：
 
 ```bash
-cd /opt/slothwatching
+cd /opt/sub2api
 source .env
-gunzip -c backups/xxx.sql.gz | docker exec -i slothwatching-postgres \
+gunzip -c backups/xxx.sql.gz | docker exec -i sub2api-postgres \
   psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
 ```
 
@@ -254,7 +254,7 @@ gunzip -c backups/xxx.sql.gz | docker exec -i slothwatching-postgres \
 ### 回滚到上一个版本
 
 ```bash
-cd /opt/slothwatching
+cd /opt/sub2api
 # 查看本地已有的镜像标签
 docker images ghcr.io/happyvictorwu/sub2api
 # 改成想回滚的 sha 标签
@@ -265,7 +265,7 @@ docker compose -f docker-compose.yml -f docker-compose.azure.yml up -d
 ### 升级 VM 规格
 
 ```bash
-az vm resize -g slothwatching-rg -n slothwatching-vm --size Standard_B4ms
+az vm resize -g sub2api-rg -n sub2api-vm --size Standard_B4ms
 ```
 
 会重启 VM，容器 `restart: unless-stopped` 会自动拉起，数据在托管盘上不丢。
@@ -306,34 +306,34 @@ az vm resize -g slothwatching-rg -n slothwatching-vm --size Standard_B4ms
 检查 NSG 的 SSH 来源限制。如果 bootstrap 时设了 `SSH_ALLOWED_CIDR` 为固定 IP，GitHub Actions 的 runner IP 会被挡掉。GitHub runner 出口 IP 不固定，两种解法：把 SSH 规则放开为 `*`（依赖密钥认证保证安全），或改用自托管 runner。
 
 ```bash
-az network nsg rule update -g slothwatching-rg --nsg-name slothwatching-nsg \
+az network nsg rule update -g sub2api-rg --nsg-name sub2api-nsg \
   -n AllowSSH --source-address-prefixes '*'
 ```
 
 **Q: 网站打不开 / 证书报错**
 
 ```bash
-docker logs slothwatching-caddy | tail -50
+docker logs sub2api-caddy | tail -50
 ```
 常见原因：DNS 还没生效、80 端口被 NSG 挡住、`SITE_ADDRESS` 写错。Let's Encrypt 的 HTTP-01 校验必须能访问 80 端口。
 
 **Q: 应用起不来，healthcheck 一直 unhealthy**
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.azure.yml logs slothwatching | tail -100
+docker compose -f docker-compose.yml -f docker-compose.azure.yml logs sub2api | tail -100
 ```
 多半是 `.env` 里数据库或 Redis 密码不匹配。删掉容器内已生成的配置重来：
 
 ```bash
-docker exec slothwatching rm -f /app/data/config.yaml
-docker compose -f docker-compose.yml -f docker-compose.azure.yml restart slothwatching
+docker exec sub2api rm -f /app/data/config.yaml
+docker compose -f docker-compose.yml -f docker-compose.azure.yml restart sub2api
 ```
 
 **Q: 重跑 `bootstrap.sh` 报 `PropertyChangeNotAllowed: osProfile.customData`**
 Azure 不允许修改已存在 VM 的 cloud-init（customData）。脚本现在会先检测 VM 是否存在、存在就跳过部署，所以正常重跑不会再遇到。如果你确实改了 `cloud-init.yaml` 并想让它生效，只能删掉 VM 重建（数据在容器卷里，会一起丢，务必先备份）：
 
 ```bash
-az vm delete -g slothwatching-rg -n slothwatching-vm --yes
+az vm delete -g sub2api-rg -n sub2api-vm --yes
 ./bootstrap.sh
 ```
 
@@ -349,7 +349,7 @@ az vm delete -g slothwatching-rg -n slothwatching-vm --yes
 
 ```bash
 docker system prune -af --volumes   # ⚠️ 会删掉未使用的卷，先确认
-du -sh /opt/slothwatching/backups
+du -sh /opt/sub2api/backups
 ```
 
 **Q: 从上游 `Wei-Shaw/sub2api` 合并更新后 workflow 冲突**
@@ -371,7 +371,7 @@ du -sh /opt/slothwatching/backups
 ## 十一、销毁全部资源
 
 ```bash
-az group delete -n slothwatching-rg --yes --no-wait
+az group delete -n sub2api-rg --yes --no-wait
 ```
 
 会删除该资源组下所有资源（VM、磁盘、IP、网络）。**数据不可恢复**，请先备份。

@@ -144,7 +144,7 @@ jobs:
             deploy/docker-compose.yml \
             deploy/azure/docker-compose.azure.yml \
             deploy/azure/Caddyfile \
-            "${VM_USER}@${VM_HOST}:/opt/slothwatching/"
+            "${VM_USER}@${VM_HOST}:/opt/sub2api/"
 
       - name: Deploy
         env:
@@ -177,7 +177,7 @@ jobs:
             sleep 5
           done
           echo "::error::HTTPS 健康检查在 10 次探测内未返回 200。容器可能已启动但证书尚未签发或应用不可用。"
-          echo "::error::请检查：docker logs slothwatching-caddy / docker logs slothwatching"
+          echo "::error::请检查：docker logs sub2api-caddy / docker logs sub2api"
           exit 1
 
       - name: Cleanup

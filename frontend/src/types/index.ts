@@ -1,5 +1,5 @@
 /**
- * Core Type Definitions for Slothwatching Frontend
+ * Core Type Definitions for Sub2API Frontend
  */
 
 // ==================== Common Types ====================
@@ -1013,7 +1013,7 @@ export interface TempUnschedulableStatus {
 }
 
 export interface UpstreamBillingData {
-  object: 'slothwatching.key_billing'
+  object: 'sub2api.key_billing'
   schema_version: 1
   billing_scope: 'token'
   group_rate_multiplier: number

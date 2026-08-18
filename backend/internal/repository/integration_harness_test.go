@@ -64,7 +64,7 @@ func TestMain(m *testing.M) {
 	pgContainer, err := tcpostgres.Run(
 		ctx,
 		postgresImage,
-		tcpostgres.WithDatabase("slothwatching_test"),
+		tcpostgres.WithDatabase("sub2api_test"),
 		tcpostgres.WithUsername("postgres"),
 		tcpostgres.WithPassword("postgres"),
 		tcpostgres.BasicWaitStrategies(),

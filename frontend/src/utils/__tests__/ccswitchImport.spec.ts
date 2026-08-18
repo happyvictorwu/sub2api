@@ -22,7 +22,7 @@ describe('ccswitchImport utils', () => {
 
   const baseInput = {
     baseUrl: 'https://api.example.com',
-    providerName: 'Slothwatching',
+    providerName: 'Sub2API',
     apiKey: 'sk-test',
     usageScript: 'return true'
   }

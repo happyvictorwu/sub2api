@@ -31,7 +31,7 @@ func TestUpstreamBillingProbeIdentityCoversAllAPIKeyPlatforms(t *testing.T) {
 
 func upstreamBillingProbeValidBody() io.ReadCloser {
 	return io.NopCloser(strings.NewReader(`{
-		"object":"slothwatching.key_billing",
+		"object":"sub2api.key_billing",
 		"schema_version":1,
 		"billing_scope":"token",
 		"group_rate_multiplier":0.02,

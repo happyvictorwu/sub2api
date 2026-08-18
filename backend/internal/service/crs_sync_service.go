@@ -283,7 +283,7 @@ func (s *CRSSyncService) SyncFromCRS(ctx context.Context, input SyncFromCRSInput
 		proxies, _ = s.proxyRepo.ListActive(ctx)
 	}
 
-	// Claude OAuth / Setup Token -> slothwatching anthropic oauth/setup-token
+	// Claude OAuth / Setup Token -> sub2api anthropic oauth/setup-token
 	for _, src := range exported.Data.ClaudeAccounts {
 		item := SyncFromCRSItemResult{
 			CRSAccountID: src.ID,
@@ -452,7 +452,7 @@ func (s *CRSSyncService) SyncFromCRS(ctx context.Context, input SyncFromCRSInput
 		result.Items = append(result.Items, item)
 	}
 
-	// Claude Console API Key -> slothwatching anthropic apikey
+	// Claude Console API Key -> sub2api anthropic apikey
 	for _, src := range exported.Data.ClaudeConsoleAccounts {
 		item := SyncFromCRSItemResult{
 			CRSAccountID: src.ID,
@@ -574,7 +574,7 @@ func (s *CRSSyncService) SyncFromCRS(ctx context.Context, input SyncFromCRSInput
 		result.Items = append(result.Items, item)
 	}
 
-	// OpenAI OAuth -> slothwatching openai oauth
+	// OpenAI OAuth -> sub2api openai oauth
 	for _, src := range exported.Data.OpenAIOAuthAccounts {
 		item := SyncFromCRSItemResult{
 			CRSAccountID: src.ID,
@@ -736,7 +736,7 @@ func (s *CRSSyncService) SyncFromCRS(ctx context.Context, input SyncFromCRSInput
 		result.Items = append(result.Items, item)
 	}
 
-	// OpenAI Responses API Key -> slothwatching openai apikey
+	// OpenAI Responses API Key -> sub2api openai apikey
 	for _, src := range exported.Data.OpenAIResponsesAccounts {
 		item := SyncFromCRSItemResult{
 			CRSAccountID: src.ID,
@@ -881,7 +881,7 @@ func (s *CRSSyncService) SyncFromCRS(ctx context.Context, input SyncFromCRSInput
 		result.Items = append(result.Items, item)
 	}
 
-	// Gemini OAuth -> slothwatching gemini oauth
+	// Gemini OAuth -> sub2api gemini oauth
 	for _, src := range exported.Data.GeminiOAuthAccounts {
 		item := SyncFromCRSItemResult{
 			CRSAccountID: src.ID,
@@ -1017,7 +1017,7 @@ func (s *CRSSyncService) SyncFromCRS(ctx context.Context, input SyncFromCRSInput
 		result.Items = append(result.Items, item)
 	}
 
-	// Gemini API Key -> slothwatching gemini apikey
+	// Gemini API Key -> sub2api gemini apikey
 	for _, src := range exported.Data.GeminiAPIKeyAccounts {
 		item := SyncFromCRSItemResult{
 			CRSAccountID: src.ID,

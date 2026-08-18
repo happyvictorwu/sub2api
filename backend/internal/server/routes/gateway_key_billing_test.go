@@ -145,7 +145,7 @@ func TestGatewayRoutesKeyBillingInfoEndToEnd(t *testing.T) {
 		require.NotContains(t, strings.ToLower(w.Body.String()), "<!doctype html>")
 		var body map[string]any
 		require.NoError(t, json.Unmarshal(w.Body.Bytes(), &body))
-		require.Equal(t, "slothwatching.key_billing", body["object"])
+		require.Equal(t, "sub2api.key_billing", body["object"])
 		require.Equal(t, 0.75, body["effective_rate_multiplier"])
 		require.Equal(t, 1, rateRepo.lookupCalls)
 	})

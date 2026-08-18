@@ -18,7 +18,7 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 )
 
-const parameterLimitTestDriverName = "slothwatching_param_limit_test"
+const parameterLimitTestDriverName = "sub2api_param_limit_test"
 
 var registerParameterLimitTestDriverOnce sync.Once
 

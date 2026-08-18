@@ -12,7 +12,7 @@ docs/claude-relay-service/
 *.dylib
 backend/bin/
 backend/server
-backend/slothwatching
+backend/sub2api
 backend/main
 
 # Go 测试二进制
@@ -147,6 +147,3 @@ output/
 
 # Vitest / Vite cache at repo root
 .vite/
-
-# rebrand 脚本的暂存目录（剥离的上游广告/赞助内容备份）
-_to_delete/

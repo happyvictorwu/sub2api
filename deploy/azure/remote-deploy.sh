@@ -10,7 +10,7 @@
 
 set -euo pipefail
 
-APP_DIR=/opt/slothwatching
+APP_DIR=/opt/sub2api
 COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.azure.yml)
 
 cd "${APP_DIR}"
@@ -31,14 +31,14 @@ else
 fi
 
 echo "==> 备份数据库（保留最近 7 份）"
-if docker ps --format '{{.Names}}' | grep -q '^slothwatching-postgres$'; then
+if docker ps --format '{{.Names}}' | grep -q '^sub2api-postgres$'; then
   mkdir -p backups
   set +e
   # shellcheck disable=SC1091
   PGUSER="$(grep -E '^POSTGRES_USER=' .env | cut -d= -f2-)"
   PGDB="$(grep -E '^POSTGRES_DB=' .env | cut -d= -f2-)"
   BACKUP_FILE="backups/pre-deploy-$(date +%Y%m%d-%H%M%S).sql.gz"
-  docker exec slothwatching-postgres pg_dump -U "${PGUSER:-slothwatching}" -d "${PGDB:-slothwatching}" \
+  docker exec sub2api-postgres pg_dump -U "${PGUSER:-sub2api}" -d "${PGDB:-sub2api}" \
     | gzip > "${BACKUP_FILE}"
   # pg_dump 失败时 gzip 仍会留下一个空壳文件，这里直接丢掉避免误以为有备份
   if [[ ! -s "${BACKUP_FILE}" ]] || [[ "$(stat -c %s "${BACKUP_FILE}")" -lt 200 ]]; then
@@ -62,7 +62,7 @@ echo "==> 启动 / 更新服务"
 echo "==> 等待应用健康检查通过"
 HEALTHY=0
 for i in $(seq 1 36); do
-  STATUS="$(docker inspect --format '{{.State.Health.Status}}' slothwatching 2>/dev/null || echo unknown)"
+  STATUS="$(docker inspect --format '{{.State.Health.Status}}' sub2api 2>/dev/null || echo unknown)"
   if [[ "${STATUS}" == "healthy" ]]; then
     HEALTHY=1
     break
@@ -77,7 +77,7 @@ done
 
 if [[ "${HEALTHY}" != "1" ]]; then
   echo "::error:: 应用未在 3 分钟内变为 healthy，最近日志如下：" >&2
-  "${COMPOSE[@]}" logs --tail=120 slothwatching >&2 || true
+  "${COMPOSE[@]}" logs --tail=120 sub2api >&2 || true
   docker logout ghcr.io >/dev/null 2>&1 || true
   exit 1
 fi

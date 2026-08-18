@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const forwardedIPSettingsKey = "slothwatching.forwarded_ip_settings"
+const forwardedIPSettingsKey = "sub2api.forwarded_ip_settings"
 
 type forwardedIPSettings struct {
 	trustForwarded bool

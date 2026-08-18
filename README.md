@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/logo.svg" alt="Slothwatching Logo" width="128" />
+<img src="assets/logo.svg" alt="Sub2API Logo" width="128" />
 
-# Slothwatching
+# Sub2API
 
 [![Go](https://img.shields.io/badge/Go-1.26.5-00ADD8.svg)](https://golang.org/)
 [![Vue](https://img.shields.io/badge/Vue-3.4+-4FC08D.svg)](https://vuejs.org/)
@@ -10,7 +10,7 @@
 [![Redis](https://img.shields.io/badge/Redis-7+-DC382D.svg)](https://redis.io/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
 
-<a href="https://trendshift.io/repositories/21823" target="_blank"><img src="https://trendshift.io/api/badge/repositories/21823" alt="Wei-Shaw%2Fslothwatching | Trendshift" width="250" height="55"/></a>
+<a href="https://trendshift.io/repositories/21823" target="_blank"><img src="https://trendshift.io/api/badge/repositories/21823" alt="Wei-Shaw%2Fsub2api | Trendshift" width="250" height="55"/></a>
 
 **AI API Gateway Platform for Subscription Quota Distribution**
 
@@ -29,7 +29,7 @@ Please read the following carefully before using this project:
 
 ## Overview
 
-Slothwatching is an AI API gateway platform designed to distribute and manage API quotas from AI product subscriptions. Users can access upstream AI services through platform-generated API Keys, while the platform handles authentication, billing, load balancing, and request forwarding.
+Sub2API is an AI API gateway platform designed to distribute and manage API quotas from AI product subscriptions. Users can access upstream AI services through platform-generated API Keys, while the platform handles authentication, billing, load balancing, and request forwarding.
 
 ## Features
 
@@ -46,12 +46,12 @@ Slothwatching is an AI API gateway platform designed to distribute and manage AP
 
 ## Ecosystem
 
-Community projects that extend or integrate with Slothwatching:
+Community projects that extend or integrate with Sub2API:
 
 | Project | Description | Features |
 |---------|-------------|----------|
-| ~~[SlothwatchingPay](https://github.com/touwaeriol/sub2apipay)~~ | ~~Self-service payment system~~ | **Now Built-in** — Payment is now integrated into Slothwatching, no separate deployment needed. See [Payment Configuration Guide](docs/PAYMENT.md) |
-| [slothwatching-mobile](https://github.com/ckken/sub2api-mobile) | Mobile admin console | Cross-platform app (iOS/Android/Web) for user management, account management, monitoring dashboard, and multi-backend switching; built with Expo + React Native |
+| ~~[Sub2ApiPay](https://github.com/touwaeriol/sub2apipay)~~ | ~~Self-service payment system~~ | **Now Built-in** — Payment is now integrated into Sub2API, no separate deployment needed. See [Payment Configuration Guide](docs/PAYMENT.md) |
+| [sub2api-mobile](https://github.com/ckken/sub2api-mobile) | Mobile admin console | Cross-platform app (iOS/Android/Web) for user management, account management, monitoring dashboard, and multi-backend switching; built with Expo + React Native |
 
 ## Tech Stack
 
@@ -66,7 +66,7 @@ Community projects that extend or integrate with Slothwatching:
 
 ## Nginx Reverse Proxy Note
 
-When using Nginx as a reverse proxy for Slothwatching (or CRS) with Codex CLI, add the following to the `http` block in your Nginx configuration:
+When using Nginx as a reverse proxy for Sub2API (or CRS) with Codex CLI, add the following to the `http` block in your Nginx configuration:
 
 ```nginx
 underscores_in_headers on;
@@ -92,13 +92,13 @@ One-click installation script that downloads pre-built binaries from GitHub Rele
 #### Installation Steps
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/happyvictorwu/sub2api/main/deploy/install.sh | sudo bash
+curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/install.sh | sudo bash
 ```
 
 The script will:
 1. Detect your system architecture
 2. Download the latest release
-3. Install binary to `/opt/slothwatching`
+3. Install binary to `/opt/sub2api`
 4. Create systemd service
 5. Configure system user and permissions
 
@@ -106,10 +106,10 @@ The script will:
 
 ```bash
 # 1. Start the service
-sudo systemctl start slothwatching
+sudo systemctl start sub2api
 
 # 2. Enable auto-start on boot
-sudo systemctl enable slothwatching
+sudo systemctl enable sub2api
 
 # 3. Open Setup Wizard in browser
 # http://YOUR_SERVER_IP:8080
@@ -133,16 +133,16 @@ The web interface will:
 
 ```bash
 # Check status
-sudo systemctl status slothwatching
+sudo systemctl status sub2api
 
 # View logs
-sudo journalctl -u slothwatching -f
+sudo journalctl -u sub2api -f
 
 # Restart service
-sudo systemctl restart slothwatching
+sudo systemctl restart sub2api
 
 # Uninstall
-curl -sSL https://raw.githubusercontent.com/happyvictorwu/sub2api/main/deploy/install.sh | sudo bash -s -- uninstall -y
+curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/install.sh | sudo bash -s -- uninstall -y
 ```
 
 ---
@@ -162,16 +162,16 @@ Use the automated deployment script for easy setup:
 
 ```bash
 # Create deployment directory
-mkdir -p slothwatching-deploy && cd slothwatching-deploy
+mkdir -p sub2api-deploy && cd sub2api-deploy
 
 # Download and run deployment preparation script
-curl -sSL https://raw.githubusercontent.com/happyvictorwu/sub2api/main/deploy/docker-deploy.sh | bash
+curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/docker-deploy.sh | bash
 
 # Start services
 docker compose up -d
 
 # View logs
-docker compose logs -f slothwatching
+docker compose logs -f sub2api
 ```
 
 **What the script does:**
@@ -187,8 +187,8 @@ If you prefer manual setup:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/happyvictorwu/sub2api.git
-cd slothwatching/deploy
+git clone https://github.com/Wei-Shaw/sub2api.git
+cd sub2api/deploy
 
 # 2. Copy environment configuration
 cp .env.example .env
@@ -245,7 +245,7 @@ docker compose up -d
 docker compose -f docker-compose.local.yml ps
 
 # 7. View logs
-docker compose -f docker-compose.local.yml logs -f slothwatching
+docker compose -f docker-compose.local.yml logs -f sub2api
 ```
 
 #### Deployment Versions
@@ -263,7 +263,7 @@ Open `http://YOUR_SERVER_IP:8080` in your browser.
 
 If admin password was auto-generated, find it in logs:
 ```bash
-docker compose -f docker-compose.local.yml logs slothwatching | grep "admin password"
+docker compose -f docker-compose.local.yml logs sub2api | grep "admin password"
 ```
 
 #### Upgrade
@@ -282,14 +282,14 @@ When using `docker-compose.local.yml`, migrate to a new server easily:
 # On source server
 docker compose -f docker-compose.local.yml down
 cd ..
-tar czf slothwatching-complete.tar.gz slothwatching-deploy/
+tar czf sub2api-complete.tar.gz sub2api-deploy/
 
 # Transfer to new server
-scp slothwatching-complete.tar.gz user@new-server:/path/
+scp sub2api-complete.tar.gz user@new-server:/path/
 
 # On new server
-tar xzf slothwatching-complete.tar.gz
-cd slothwatching-deploy/
+tar xzf sub2api-complete.tar.gz
+cd sub2api-deploy/
 docker compose -f docker-compose.local.yml up -d
 ```
 
@@ -314,11 +314,11 @@ rm -rf data/ postgres_data/ redis_data/
 
 ### Method 3: Apple container (macOS)
 
-Apple-silicon Macs running macOS 26 can run the full Slothwatching, PostgreSQL, and Redis stack with Apple `container` 1.1.0 or newer:
+Apple-silicon Macs running macOS 26 can run the full Sub2API, PostgreSQL, and Redis stack with Apple `container` 1.1.0 or newer:
 
 ```bash
-git clone https://github.com/happyvictorwu/sub2api.git
-cd slothwatching/deploy
+git clone https://github.com/Wei-Shaw/sub2api.git
+cd sub2api/deploy
 ./apple-container.sh init
 ./apple-container.sh up
 ./apple-container.sh status
@@ -343,8 +343,8 @@ Build and run from source code for development or customization.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/happyvictorwu/sub2api.git
-cd slothwatching
+git clone https://github.com/Wei-Shaw/sub2api.git
+cd sub2api
 
 # 2. Install pnpm (if not already installed)
 npm install -g pnpm
@@ -358,7 +358,7 @@ pnpm run build
 # 4. Build backend with embedded frontend
 cd ../backend
 VERSION="$(./scripts/resolve-version.sh)"
-go build -tags embed -ldflags="-X main.Version=${VERSION}" -o slothwatching ./cmd/server
+go build -tags embed -ldflags="-X main.Version=${VERSION}" -o sub2api ./cmd/server
 
 # 5. Create configuration file
 cp ../deploy/config.example.yaml ./config.yaml
@@ -382,7 +382,7 @@ database:
   port: 5432
   user: "postgres"
   password: "your_password"
-  dbname: "slothwatching"
+  dbname: "sub2api"
 
 redis:
   host: "localhost"
@@ -417,7 +417,7 @@ Additional security-related options are available in `config.yaml`:
 - `security.response_headers.enabled` to enable configurable response header filtering (disabled uses default allowlist)
 - `security.csp` to control Content-Security-Policy headers
 - `billing.circuit_breaker` to fail closed on billing errors
-- `security.trust_forwarded_ip_for_api_key_acl` enables legacy raw forwarded-header takeover (enabled by default for upgrade compatibility); disable it to enforce `server.trusted_proxies`, which should contain only the exact proxy CIDRs that connect directly to Slothwatching
+- `security.trust_forwarded_ip_for_api_key_acl` enables legacy raw forwarded-header takeover (enabled by default for upgrade compatibility); disable it to enforce `server.trusted_proxies`, which should contain only the exact proxy CIDRs that connect directly to Sub2API
 - `security.forwarded_client_ip_headers` configures up to 16 third-party CDN client-IP header names; they are checked in order before the built-in headers only while legacy takeover is enabled
 - `turnstile.required` to require Turnstile in release mode
 
@@ -517,20 +517,20 @@ Because step 5 above pre-creates `config.yaml`, the setup wizard will be **skipp
 
 **Two ways to create the admin account:**
 
-1. **Recommended — let the wizard generate `config.yaml`:** Skip step 5 (do not run the `cp`). Start `./slothwatching` directly; the setup wizard at `http://localhost:8080` walks you through database, Redis, and admin account setup, then writes `config.yaml` for you.
+1. **Recommended — let the wizard generate `config.yaml`:** Skip step 5 (do not run the `cp`). Start `./sub2api` directly; the setup wizard at `http://localhost:8080` walks you through database, Redis, and admin account setup, then writes `config.yaml` for you.
 
 2. **If you already created `config.yaml`:** Temporarily move it aside so the wizard can trigger on first run, then restore it afterwards:
    ```bash
    mv config.yaml config.yaml.bak
-   ./slothwatching        # wizard runs at http://localhost:8080 and writes a fresh config.yaml
+   ./sub2api        # wizard runs at http://localhost:8080 and writes a fresh config.yaml
    # stop the server (Ctrl+C) once the wizard completes, then restore your config:
    mv config.yaml.bak config.yaml
-   ./slothwatching        # restart in normal mode and log in with the admin you just created
+   ./sub2api        # restart in normal mode and log in with the admin you just created
    ```
 
 ```bash
 # 6. Run the application
-./slothwatching
+./sub2api
 ```
 
 #### Development Mode
@@ -575,7 +575,7 @@ Long-running OpenAI/Grok image generation and editing can be submitted through `
 
 ## Grok / xAI Support
 
-Slothwatching supports both Grok subscription accounts through xAI OAuth and standard xAI API-key accounts. Both account types forward OpenAI-compatible Responses traffic to xAI.
+Sub2API supports both Grok subscription accounts through xAI OAuth and standard xAI API-key accounts. Both account types forward OpenAI-compatible Responses traffic to xAI.
 
 ### Supported Scope
 
@@ -620,8 +620,8 @@ For API-key accounts, select **Grok → API Key** in the create-account dialog. 
 
 ### Grok Build CLI Configuration
 
-1. In the Slothwatching admin dashboard, add either a `grok` OAuth account and complete xAI authorization, or add a Grok API-key account.
-2. Create a Grok group, attach the account to it, then create a Slothwatching API key assigned to that group.
+1. In the Sub2API admin dashboard, add either a `grok` OAuth account and complete xAI authorization, or add a Grok API-key account.
+2. Create a Grok group, attach the account to it, then create a Sub2API API key assigned to that group.
 3. In the user API-key page, click **Use Key** and select **Grok CLI**. The modal generates the correct file and base URL for macOS/Linux or Windows. It also provides an OpenCode configuration on the **OpenCode** tab.
 4. If configuring manually, save the following as `~/.grok/config.toml` (Windows: `%USERPROFILE%\.grok\config.toml`):
 
@@ -632,26 +632,26 @@ web_search = "grok"
 
 [model."grok"]
 model = "grok-4.5"
-base_url = "https://your-slothwatching.example.com/v1"
+base_url = "https://your-sub2api.example.com/v1"
 name = "Grok 4.5"
-api_key = "sk-your-slothwatching-key"
+api_key = "sk-your-sub2api-key"
 api_backend = "responses"
 context_window = 1000000
 supports_backend_search = true
 ```
 
-Back up an existing `config.toml` before merging the entry. The file contains a Slothwatching API key, so keep it private and restrict its permissions where supported. Verify the effective configuration and make a smoke request:
+Back up an existing `config.toml` before merging the entry. The file contains a Sub2API API key, so keep it private and restrict its permissions where supported. Verify the effective configuration and make a smoke request:
 
 ```bash
 grok inspect
-grok -p "Reply with slothwatching-ok" -m grok
+grok -p "Reply with sub2api-ok" -m grok
 ```
 
-The `base_url` above is the public Slothwatching URL ending in `/v1`, not `api.x.ai` or the internal xAI OAuth proxy URL.
+The `base_url` above is the public Sub2API URL ending in `/v1`, not `api.x.ai` or the internal xAI OAuth proxy URL.
 
 ### Usage And Quota Display
 
-xAI quota is passive. Slothwatching does not invent subscription quota values; it records whitelisted xAI rate-limit headers from successful or rate-limited upstream responses when xAI sends them. Before the first usable upstream response, the dashboard shows quota as unknown and still displays local Slothwatching usage stats.
+xAI quota is passive. Sub2API does not invent subscription quota values; it records whitelisted xAI rate-limit headers from successful or rate-limited upstream responses when xAI sends them. Before the first usable upstream response, the dashboard shows quota as unknown and still displays local Sub2API usage stats.
 
 `401` responses temporarily remove accounts with invalid credentials from scheduling. `403` responses are treated as access or entitlement failures instead of token-refresh loops. `429` responses use `Retry-After` or a short cooldown to temporarily remove the account from scheduling.
 
@@ -663,7 +663,7 @@ Administrators can override automatic media eligibility through the account crea
 
 ## Antigravity Support
 
-Slothwatching supports [Antigravity](https://antigravity.so/) accounts. After authorization, dedicated endpoints are available for Claude and Gemini models.
+Sub2API supports [Antigravity](https://antigravity.so/) accounts. After authorization, dedicated endpoints are available for Claude and Gemini models.
 
 ### Dedicated Endpoints
 
@@ -690,7 +690,7 @@ Antigravity accounts support optional **hybrid scheduling**. When enabled, the g
 ## Project Structure
 
 ```
-slothwatching/
+sub2api/
 ├── backend/                  # Go backend service
 │   ├── cmd/server/           # Application entry
 │   ├── internal/             # Internal modules
@@ -717,11 +717,11 @@ slothwatching/
 
 ## Star History
 
-<a href="https://star-history.com/#happyvictorwu/sub2api&Date">
+<a href="https://star-history.com/#Wei-Shaw/sub2api&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=happyvictorwu/sub2api&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=happyvictorwu/sub2api&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=happyvictorwu/sub2api&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Wei-Shaw/sub2api&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Wei-Shaw/sub2api&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Wei-Shaw/sub2api&type=Date" />
  </picture>
 </a>
 

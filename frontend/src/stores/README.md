@@ -1,6 +1,6 @@
 # Pinia Stores Documentation
 
-This directory contains all Pinia stores for the Slothwatching frontend application.
+This directory contains all Pinia stores for the Sub2API frontend application.
 
 ## Stores Overview
 

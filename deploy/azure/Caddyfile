@@ -1,5 +1,5 @@
 # =============================================================================
-# Slothwatching - Azure VM Caddyfile
+# Sub2API - Azure VM Caddyfile
 # =============================================================================
 # 域名由 .env 中的 SITE_ADDRESS 注入（默认使用 Azure 的
 # <dnsLabel>.<region>.cloudapp.azure.com）。Caddy 会自动向 Let's Encrypt
@@ -27,7 +27,7 @@
 		protocols tls1.2 tls1.3
 	}
 
-	reverse_proxy slothwatching:8080 {
+	reverse_proxy sub2api:8080 {
 		health_uri /health
 		health_interval 30s
 		health_timeout 10s
@@ -73,7 +73,7 @@
 	}
 
 	log {
-		output file /var/log/caddy/slothwatching.log {
+		output file /var/log/caddy/sub2api.log {
 			roll_size 50mb
 			roll_keep 10
 			roll_keep_for 720h

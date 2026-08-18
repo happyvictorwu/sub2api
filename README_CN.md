@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/logo.svg" alt="Slothwatching Logo" width="128" />
+<img src="assets/logo.svg" alt="Sub2API Logo" width="128" />
 
-# Slothwatching
+# Sub2API
 
 [![Go](https://img.shields.io/badge/Go-1.26.5-00ADD8.svg)](https://golang.org/)
 [![Vue](https://img.shields.io/badge/Vue-3.4+-4FC08D.svg)](https://vuejs.org/)
@@ -10,7 +10,7 @@
 [![Redis](https://img.shields.io/badge/Redis-7+-DC382D.svg)](https://redis.io/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
 
-<a href="https://trendshift.io/repositories/21823" target="_blank"><img src="https://trendshift.io/api/badge/repositories/21823" alt="Wei-Shaw%2Fslothwatching | Trendshift" width="250" height="55"/></a>
+<a href="https://trendshift.io/repositories/21823" target="_blank"><img src="https://trendshift.io/api/badge/repositories/21823" alt="Wei-Shaw%2Fsub2api | Trendshift" width="250" height="55"/></a>
 
 **AI API 网关平台 - 订阅配额分发管理**
 
@@ -30,7 +30,7 @@
 
 ## 项目概述
 
-Slothwatching 是一个 AI API 网关平台，用于分发和管理 AI 产品订阅的 API 配额。用户通过平台生成的 API Key 调用上游 AI 服务，平台负责鉴权、计费、负载均衡和请求转发。
+Sub2API 是一个 AI API 网关平台，用于分发和管理 AI 产品订阅的 API 配额。用户通过平台生成的 API Key 调用上游 AI 服务，平台负责鉴权、计费、负载均衡和请求转发。
 
 ## 核心功能
 
@@ -46,12 +46,12 @@ Slothwatching 是一个 AI API 网关平台，用于分发和管理 AI 产品订
 
 ## 生态项目
 
-围绕 Slothwatching 的社区扩展与集成项目：
+围绕 Sub2API 的社区扩展与集成项目：
 
 | 项目 | 说明 | 功能 |
 |------|------|------|
-| ~~[SlothwatchingPay](https://github.com/touwaeriol/sub2apipay)~~ | ~~自助支付系统~~ | **已内置** — 支付功能已集成到 Slothwatching 中，无需独立部署。详见 [支付配置指南](docs/PAYMENT_CN.md) |
-| [slothwatching-mobile](https://github.com/ckken/sub2api-mobile) | 移动端管理控制台 | 跨平台应用（iOS/Android/Web），支持用户管理、账号管理、监控看板、多后端切换；基于 Expo + React Native 构建 |
+| ~~[Sub2ApiPay](https://github.com/touwaeriol/sub2apipay)~~ | ~~自助支付系统~~ | **已内置** — 支付功能已集成到 Sub2API 中，无需独立部署。详见 [支付配置指南](docs/PAYMENT_CN.md) |
+| [sub2api-mobile](https://github.com/ckken/sub2api-mobile) | 移动端管理控制台 | 跨平台应用（iOS/Android/Web），支持用户管理、账号管理、监控看板、多后端切换；基于 Expo + React Native 构建 |
 
 ## 技术栈
 
@@ -66,7 +66,7 @@ Slothwatching 是一个 AI API 网关平台，用于分发和管理 AI 产品订
 
 ## Nginx 反向代理注意事项
 
-通过 Nginx 反向代理 Slothwatching（或 CRS 服务）并搭配 Codex CLI 使用时，需要在 Nginx 配置的 `http` 块中添加：
+通过 Nginx 反向代理 Sub2API（或 CRS 服务）并搭配 Codex CLI 使用时，需要在 Nginx 配置的 `http` 块中添加：
 
 ```nginx
 underscores_in_headers on;
@@ -92,13 +92,13 @@ Nginx 默认会丢弃名称中含下划线的请求头（如 `session_id`），�
 #### 安装步骤
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/happyvictorwu/sub2api/main/deploy/install.sh | sudo bash
+curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/install.sh | sudo bash
 ```
 
 脚本会自动：
 1. 检测系统架构
 2. 下载最新版本
-3. 安装二进制文件到 `/opt/slothwatching`
+3. 安装二进制文件到 `/opt/sub2api`
 4. 创建 systemd 服务
 5. 配置系统用户和权限
 
@@ -106,10 +106,10 @@ curl -sSL https://raw.githubusercontent.com/happyvictorwu/sub2api/main/deploy/in
 
 ```bash
 # 1. 启动服务
-sudo systemctl start slothwatching
+sudo systemctl start sub2api
 
 # 2. 设置开机自启
-sudo systemctl enable slothwatching
+sudo systemctl enable sub2api
 
 # 3. 在浏览器中打开设置向导
 # http://你的服务器IP:8080
@@ -133,16 +133,16 @@ sudo systemctl enable slothwatching
 
 ```bash
 # 查看状态
-sudo systemctl status slothwatching
+sudo systemctl status sub2api
 
 # 查看日志
-sudo journalctl -u slothwatching -f
+sudo journalctl -u sub2api -f
 
 # 重启服务
-sudo systemctl restart slothwatching
+sudo systemctl restart sub2api
 
 # 卸载
-curl -sSL https://raw.githubusercontent.com/happyvictorwu/sub2api/main/deploy/install.sh | sudo bash -s -- uninstall -y
+curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/install.sh | sudo bash -s -- uninstall -y
 ```
 
 ---
@@ -162,16 +162,16 @@ curl -sSL https://raw.githubusercontent.com/happyvictorwu/sub2api/main/deploy/in
 
 ```bash
 # 创建部署目录
-mkdir -p slothwatching-deploy && cd slothwatching-deploy
+mkdir -p sub2api-deploy && cd sub2api-deploy
 
 # 下载并运行部署准备脚本
-curl -sSL https://raw.githubusercontent.com/happyvictorwu/sub2api/main/deploy/docker-deploy.sh | bash
+curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/docker-deploy.sh | bash
 
 # 启动服务
 docker compose up -d
 
 # 查看日志
-docker compose logs -f slothwatching
+docker compose logs -f sub2api
 ```
 
 **脚本功能：**
@@ -187,8 +187,8 @@ docker compose logs -f slothwatching
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/happyvictorwu/sub2api.git
-cd slothwatching/deploy
+git clone https://github.com/Wei-Shaw/sub2api.git
+cd sub2api/deploy
 
 # 2. 复制环境配置文件
 cp .env.example .env
@@ -245,7 +245,7 @@ docker compose up -d
 docker compose -f docker-compose.local.yml ps
 
 # 7. 查看日志
-docker compose -f docker-compose.local.yml logs -f slothwatching
+docker compose -f docker-compose.local.yml logs -f sub2api
 ```
 
 #### 部署版本对比
@@ -263,7 +263,7 @@ docker compose -f docker-compose.local.yml logs -f slothwatching
 
 关键点：
 
-- 主进程固定探测：`/tmp/slothwatching-datamanagement.sock`
+- 主进程固定探测：`/tmp/sub2api-datamanagement.sock`
 - 只有该 Socket 可连通时，数据管理功能才会开启
 - Docker 场景需将宿主机 Socket 挂载到容器同路径
 
@@ -275,7 +275,7 @@ docker compose -f docker-compose.local.yml logs -f slothwatching
 
 如果管理员密码是自动生成的，在日志中查找：
 ```bash
-docker compose -f docker-compose.local.yml logs slothwatching | grep "admin password"
+docker compose -f docker-compose.local.yml logs sub2api | grep "admin password"
 ```
 
 #### 升级
@@ -294,14 +294,14 @@ docker compose -f docker-compose.local.yml up -d
 # 源服务器
 docker compose -f docker-compose.local.yml down
 cd ..
-tar czf slothwatching-complete.tar.gz slothwatching-deploy/
+tar czf sub2api-complete.tar.gz sub2api-deploy/
 
 # 传输到新服务器
-scp slothwatching-complete.tar.gz user@new-server:/path/
+scp sub2api-complete.tar.gz user@new-server:/path/
 
 # 新服务器
-tar xzf slothwatching-complete.tar.gz
-cd slothwatching-deploy/
+tar xzf sub2api-complete.tar.gz
+cd sub2api-deploy/
 docker compose -f docker-compose.local.yml up -d
 ```
 
@@ -326,11 +326,11 @@ rm -rf data/ postgres_data/ redis_data/
 
 ### 方式三：Apple container（macOS）
 
-Apple 芯片 Mac 在 macOS 26 上可使用 Apple `container` 1.1.0 或更高版本运行完整的 Slothwatching、PostgreSQL 和 Redis：
+Apple 芯片 Mac 在 macOS 26 上可使用 Apple `container` 1.1.0 或更高版本运行完整的 Sub2API、PostgreSQL 和 Redis：
 
 ```bash
-git clone https://github.com/happyvictorwu/sub2api.git
-cd slothwatching/deploy
+git clone https://github.com/Wei-Shaw/sub2api.git
+cd sub2api/deploy
 ./apple-container.sh init
 ./apple-container.sh up
 ./apple-container.sh status
@@ -355,8 +355,8 @@ cd slothwatching/deploy
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/happyvictorwu/sub2api.git
-cd slothwatching
+git clone https://github.com/Wei-Shaw/sub2api.git
+cd sub2api
 
 # 2. 安装 pnpm（如果还没有安装）
 npm install -g pnpm
@@ -370,7 +370,7 @@ pnpm run build
 # 4. 编译后端（嵌入前端）
 cd ../backend
 VERSION="$(./scripts/resolve-version.sh)"
-go build -tags embed -ldflags="-X main.Version=${VERSION}" -o slothwatching ./cmd/server
+go build -tags embed -ldflags="-X main.Version=${VERSION}" -o sub2api ./cmd/server
 
 # 5. 创建配置文件
 cp ../deploy/config.example.yaml ./config.yaml
@@ -394,7 +394,7 @@ database:
   port: 5432
   user: "postgres"
   password: "your_password"
-  dbname: "slothwatching"
+  dbname: "sub2api"
 
 redis:
   host: "localhost"
@@ -449,7 +449,7 @@ gateway:
 - `security.response_headers.enabled` 可启用可配置响应头过滤（关闭时使用默认白名单）
 - `security.csp` 配置 Content-Security-Policy
 - `billing.circuit_breaker` 计费异常时 fail-closed
-- `security.trust_forwarded_ip_for_api_key_acl` 控制旧版原始转发头接管（为升级兼容默认开启）；关闭后严格使用 `server.trusted_proxies`，其中只应填写直接连接 Slothwatching 的精确代理 CIDR
+- `security.trust_forwarded_ip_for_api_key_acl` 控制旧版原始转发头接管（为升级兼容默认开启）；关闭后严格使用 `server.trusted_proxies`，其中只应填写直接连接 Sub2API 的精确代理 CIDR
 - `security.forwarded_client_ip_headers` 最多配置 16 个第三方 CDN 客户端 IP 请求头；仅在旧版接管开启时按顺序优先于内置请求头解析
 - `turnstile.required` 在 release 模式强制启用 Turnstile
 
@@ -517,20 +517,20 @@ Invalid base URL: invalid url scheme: http
 
 **创建管理员的两种方式：**
 
-1. **推荐——让向导自动生成 `config.yaml`：** 跳过上面的第 5 步（不要执行 `cp`）。直接运行 `./slothwatching`，访问 `http://localhost:8080`，向导会引导你完成数据库、Redis 和管理员账号配置，并自动写出 `config.yaml`。
+1. **推荐——让向导自动生成 `config.yaml`：** 跳过上面的第 5 步（不要执行 `cp`）。直接运行 `./sub2api`，访问 `http://localhost:8080`，向导会引导你完成数据库、Redis 和管理员账号配置，并自动写出 `config.yaml`。
 
 2. **如果你已经创建了 `config.yaml`：** 首次启动前先把它临时移走以触发向导，完成后再恢复：
    ```bash
    mv config.yaml config.yaml.bak
-   ./slothwatching        # 向导在 http://localhost:8080 启动，并生成新的 config.yaml
+   ./sub2api        # 向导在 http://localhost:8080 启动，并生成新的 config.yaml
    # 向导完成后 Ctrl+C 停服，再恢复你的配置：
    mv config.yaml.bak config.yaml
-   ./slothwatching        # 重启进入正常模式，用刚创建的管理员登录
+   ./sub2api        # 重启进入正常模式，用刚创建的管理员登录
    ```
 
 ```bash
 # 6. 运行应用
-./slothwatching
+./sub2api
 ```
 
 #### HTTP/2 (h2c) 与 HTTP/1.1 回退
@@ -553,7 +553,7 @@ curl --http2-prior-knowledge -I http://localhost:8080/health
 # HTTP/1.1 回退
 curl --http1.1 -I http://localhost:8080/health
 # WebSocket 回退验证（需管理员 token）
-websocat -H="Sec-WebSocket-Protocol: slothwatching-admin, jwt.<ADMIN_TOKEN>" ws://localhost:8080/api/v1/admin/ops/ws/qps
+websocat -H="Sec-WebSocket-Protocol: sub2api-admin, jwt.<ADMIN_TOKEN>" ws://localhost:8080/api/v1/admin/ops/ws/qps
 ```
 
 #### 开发模式
@@ -592,7 +592,7 @@ go generate ./cmd/server
 
 ## Antigravity 使用说明
 
-Slothwatching 支持 [Antigravity](https://antigravity.so/) 账户，授权后可通过专用端点访问 Claude 和 Gemini 模型。
+Sub2API 支持 [Antigravity](https://antigravity.so/) 账户，授权后可通过专用端点访问 Claude 和 Gemini 模型。
 
 ### 专用端点
 
@@ -619,7 +619,7 @@ Antigravity 账户支持可选的**混合调度**功能。开启后，通用端�
 ## 项目结构
 
 ```
-slothwatching/
+sub2api/
 ├── backend/                  # Go 后端服务
 │   ├── cmd/server/           # 应用入口
 │   ├── internal/             # 内部模块
@@ -646,11 +646,11 @@ slothwatching/
 
 ## Star History
 
-<a href="https://star-history.com/#happyvictorwu/sub2api&Date">
+<a href="https://star-history.com/#Wei-Shaw/sub2api&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=happyvictorwu/sub2api&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=happyvictorwu/sub2api&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=happyvictorwu/sub2api&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Wei-Shaw/sub2api&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Wei-Shaw/sub2api&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Wei-Shaw/sub2api&type=Date" />
  </picture>
 </a>
 

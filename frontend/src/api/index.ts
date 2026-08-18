@@ -1,5 +1,5 @@
 /**
- * API Client for Slothwatching Backend
+ * API Client for Sub2API Backend
  * Central export point for all API modules
  */
 

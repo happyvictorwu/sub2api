@@ -117,9 +117,9 @@ func newTencentProtectedPasskeyHandler(t *testing.T) (*PasskeyHandler, *passkeyC
 	t.Helper()
 	cfg := &config.Config{WebAuthn: config.WebAuthnConfig{
 		Enabled:       true,
-		RPDisplayName: "Slothwatching",
-		RPID:          "slothwatching.example.com",
-		RPOrigins:     []string{"https://slothwatching.example.com"},
+		RPDisplayName: "Sub2API",
+		RPID:          "sub2api.example.com",
+		RPOrigins:     []string{"https://sub2api.example.com"},
 	}}
 	repo := &passkeySwitchSettingRepo{
 		value: "true",

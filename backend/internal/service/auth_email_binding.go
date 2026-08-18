@@ -130,7 +130,7 @@ func (s *AuthService) SendEmailIdentityBindCode(ctx context.Context, userID int6
 		return ErrServiceUnavailable
 	}
 
-	siteName := brandName()
+	siteName := "Sub2API"
 	if s.settingService != nil {
 		siteName = s.settingService.GetSiteName(ctx)
 	}

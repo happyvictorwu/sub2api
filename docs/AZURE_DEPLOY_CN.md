@@ -81,6 +81,7 @@ Sub2API 是 AI API 网关，大量请求是长时间 SSE 流式响应，非流�
 | `deploy/azure/Caddyfile` | 自动 HTTPS 反向代理，针对 SSE 流式响应做过调整 |
 | `deploy/azure/env.azure.example` | 环境变量模板 |
 | `deploy/azure/remote-deploy.sh` | VM 上执行的部署脚本（备份 → 拉镜像 → 滚动更新 → 健康检查） |
+| `deploy/azure/migrate-from-slothwatching.sh` | **一次性**迁移脚本：把早期按旧品牌建的部署换成 sub2api 命名并清理旧资源，跑完即可删除 |
 | `.github/workflows/azure-deploy.yml` | CI/CD：push 到 main 自动构建镜像并部署 |
 
 ---
@@ -110,6 +111,13 @@ cd deploy/azure
 ```
 
 默认参数：区域 `southeastasia`（新加坡）、规格 `Standard_B2s`、资源组 `sub2api-rg`、时区 `Asia/Singapore`。
+
+> **现存环境的命名例外**：本仓库早期用过一个自有品牌，那套 Azure 资源是用 `slothwatching`
+> 前缀建的——资源组 `slothwatching-rg`、VM `slothwatching-vm`、NSG `slothwatching-nsg`、
+> SSH 私钥 `~/.ssh/slothwatching_azure`，公网 DNS 标签同理。Azure 的资源组和 VM 都不支持改名，
+> 重建又会换掉公网 IP 和域名，所以这些**保持原样**。本文档和脚本里的 `sub2api-*` 是全新
+> provisioning 时的默认值；对现存环境执行 `az` 命令时，把资源名换成上面这组实际值。
+> VM 内部（`/opt/sub2api`、容器名、数据库名、数据卷）已经统一到 sub2api，无例外。
 需要修改时用环境变量覆盖：
 
 ```bash

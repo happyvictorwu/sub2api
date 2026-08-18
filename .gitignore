@@ -137,6 +137,7 @@ docs/*
 !docs/ADMIN_PAYMENT_INTEGRATION_API.md
 !docs/ASYNC_IMAGE_TASKS.md
 !docs/AZURE_DEPLOY_CN.md
+!docs/UPSTREAM_SYNC_CN.md
 !docs/legal/
 !docs/legal/*.md
 .serena/

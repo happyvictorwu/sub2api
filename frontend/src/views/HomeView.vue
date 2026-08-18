@@ -109,9 +109,14 @@
     <header class="relative z-20 px-6 py-4">
       <nav class="mx-auto flex max-w-6xl items-center justify-between">
         <!-- Logo -->
-        <div class="flex items-center">
+        <div class="flex items-center gap-3">
           <div class="h-10 w-10 overflow-hidden rounded-xl shadow-md">
             <img :src="siteLogo || '/logo.svg'" alt="Logo" class="h-full w-full object-contain" />
+          </div>
+          <div
+            class="select-none text-[11px] font-medium uppercase tracking-[0.28em] text-gray-500 sm:text-xs dark:text-dark-400"
+          >
+            slow watching
           </div>
         </div>
 

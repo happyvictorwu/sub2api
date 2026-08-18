@@ -736,6 +736,14 @@ func ProvideSettingService(settingRepo SettingRepository, groupRepo GroupReposit
 	svc := NewSettingService(settingRepo, cfg)
 	svc.SetDefaultSubscriptionGroupReader(groupRepo)
 	svc.SetProxyRepository(proxyRepo)
+	// 首次启动播种默认设置（含 registration_enabled=true）。此调用必须在下面各项迁移之前：
+	// 迁移读取的部分键由这里写入。函数自身幂等——检测到 registration_enabled 已存在即直接返回，
+	// 因此对已有部署不会覆盖任何管理员改过的值。
+	// 缺失此调用会导致 IsRegistrationEnabled 命中 ErrSettingNotFound 并按安全默认返回 false，
+	// 全新部署的注册入口将永久关闭。
+	if err := svc.InitializeDefaultSettings(context.Background()); err != nil {
+		logger.LegacyPrintf("service.setting", "Warning: initialize default settings failed: %v", err)
+	}
 	if err := svc.LoadForwardedClientIPSettings(context.Background()); err != nil {
 		logger.LegacyPrintf("service.setting", "Warning: load forwarded client IP settings failed: %v", err)
 	}

@@ -138,7 +138,11 @@ func (s *forwardedIPMigrationRepoStub) SetMultiple(_ context.Context, values map
 }
 
 func (s *forwardedIPMigrationRepoStub) GetAll(context.Context) (map[string]string, error) {
-	panic("unexpected GetAll call")
+	result := make(map[string]string, len(s.values))
+	for key, value := range s.values {
+		result[key] = value
+	}
+	return result, nil
 }
 
 func (s *forwardedIPMigrationRepoStub) Delete(context.Context, string) error {
@@ -902,4 +906,49 @@ func TestSettingService_StalePasskeyTrueWithoutConfigReportsDisabled(t *testing.
 	settings, err := service.GetAllSettings(context.Background())
 	require.NoError(t, err)
 	require.False(t, settings.PasskeyEnabled)
+}
+
+// 全新部署必须播种 registration_enabled=true。缺失该键时 IsRegistrationEnabled 会命中
+// ErrSettingNotFound 并按安全默认返回 false，导致注册入口永久关闭。
+func TestSettingService_InitializeDefaultSettingsEnablesRegistration(t *testing.T) {
+	repo := &forwardedIPMigrationRepoStub{values: map[string]string{}}
+	svc := NewSettingService(repo, &config.Config{})
+
+	require.NoError(t, svc.InitializeDefaultSettings(context.Background()))
+
+	require.Equal(t, "true", repo.values[SettingKeyRegistrationEnabled])
+	require.True(t, svc.IsRegistrationEnabled(context.Background()))
+}
+
+// 播种只补缺失的键。SetMultiple 是覆盖式 upsert，而本函数的守卫只看 registration_enabled，
+// 因此必须显式跳过已存在的键，否则会把其它迁移路径写入的值打回默认。
+func TestSettingService_InitializeDefaultSettingsDoesNotOverwriteExistingValues(t *testing.T) {
+	repo := &forwardedIPMigrationRepoStub{values: map[string]string{
+		SettingKeyOpenAICodexClientVersionSynced: "0.147.0",
+		SettingKeyChannelMonitorMode:             ChannelMonitorModeV1,
+	}}
+	svc := NewSettingService(repo, &config.Config{})
+
+	require.NoError(t, svc.InitializeDefaultSettings(context.Background()))
+
+	// 已存在的键保持原值（该键的默认值是空串，被覆盖会退回 ""）
+	require.Equal(t, "0.147.0", repo.values[SettingKeyOpenAICodexClientVersionSynced])
+	require.NotContains(t, repo.updates, SettingKeyOpenAICodexClientVersionSynced)
+	require.NotContains(t, repo.updates, SettingKeyChannelMonitorMode)
+	// 缺失的键照常补上
+	require.Equal(t, "true", repo.updates[SettingKeyRegistrationEnabled])
+}
+
+// 守卫：registration_enabled 已存在时直接返回，不做任何写入。
+func TestSettingService_InitializeDefaultSettingsIsIdempotent(t *testing.T) {
+	repo := &forwardedIPMigrationRepoStub{values: map[string]string{
+		SettingKeyRegistrationEnabled: "false",
+	}}
+	svc := NewSettingService(repo, &config.Config{})
+
+	require.NoError(t, svc.InitializeDefaultSettings(context.Background()))
+
+	// 管理员关掉的注册开关不能被播种重新打开
+	require.Equal(t, "false", repo.values[SettingKeyRegistrationEnabled])
+	require.Nil(t, repo.updates)
 }

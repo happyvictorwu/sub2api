@@ -162,7 +162,9 @@ jobs:
           VM_HOST: ${{ secrets.AZURE_VM_HOST }}
         run: |
           for i in $(seq 1 10); do
-            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "https://${VM_HOST}/health" || echo 000)
+            # curl 连不上时 -w 已输出 000，再 `|| echo 000` 会拼成 000000；
+            # 但本 step 跑在 bash -e 下，非零退出会中断循环，故用 `|| true` 只吞状态码不再补输出。
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "https://${VM_HOST}/health" || true)
             if [ "$CODE" = "200" ]; then
               echo "✅ https://${VM_HOST}/health -> 200"
               echo "### 部署成功 :rocket:" >> "$GITHUB_STEP_SUMMARY"
@@ -174,7 +176,9 @@ jobs:
             echo "第 ${i}/10 次探测返回 ${CODE}（证书首次签发可能需要 1-2 分钟），5 秒后重试..."
             sleep 5
           done
-          echo "::warning::HTTPS 健康检查未通过，容器可能已启动但证书尚未签发。请检查 Caddy 日志：docker logs slothwatching-caddy"
+          echo "::error::HTTPS 健康检查在 10 次探测内未返回 200。容器可能已启动但证书尚未签发或应用不可用。"
+          echo "::error::请检查：docker logs slothwatching-caddy / docker logs slothwatching"
+          exit 1
 
       - name: Cleanup
         if: always()

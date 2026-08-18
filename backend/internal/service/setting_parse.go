@@ -261,7 +261,25 @@ func (s *SettingService) InitializeDefaultSettings(ctx context.Context) error {
 		SettingKeyAllowUserViewErrorRequests: "false",
 	}
 
-	return s.settingRepo.SetMultiple(ctx, defaults)
+	// 只补缺失的键，绝不覆盖已存在的值。
+	// settingRepo.SetMultiple 是 OnConflict(key).UpdateNewValues() 的覆盖式 upsert，
+	// 而本函数的守卫仅检查 registration_enabled 是否存在。若某个部署因故缺失该键但其它
+	// 设置已由各迁移路径写入（例如 openai_codex_client_version_synced 已同步到具体版本），
+	// 全量 SetMultiple 会把这些值悉数打回默认值。
+	existing, err := s.settingRepo.GetAll(ctx)
+	if err != nil {
+		return fmt.Errorf("load existing settings: %w", err)
+	}
+	missing := make(map[string]string, len(defaults))
+	for key, value := range defaults {
+		if _, ok := existing[key]; !ok {
+			missing[key] = value
+		}
+	}
+	if len(missing) == 0 {
+		return nil
+	}
+	return s.settingRepo.SetMultiple(ctx, missing)
 }
 
 func parseForwardedClientIPHeadersSetting(value string) ([]string, error) {

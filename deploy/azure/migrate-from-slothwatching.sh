@@ -15,7 +15,11 @@
 #
 #  幂等：已经迁移过就直接退出。跑完可以把本文件从仓库里删掉。
 #
-#  用法（在 VM 上）：
+#  用法 A —— 从本机远程执行（推荐，不用先上传）：
+#     ssh -i ~/.ssh/slothwatching_azure <user>@<vm-host> 'bash -s' \
+#       < deploy/azure/migrate-from-slothwatching.sh
+#
+#  用法 B —— 已经登录到 VM 上：
 #     bash migrate-from-slothwatching.sh
 #
 #  ⚠️  会删除数据库。确认没有需要保留的数据再跑。
@@ -29,6 +33,14 @@ COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.azure.yml)
 if [[ ! -d "${OLD_DIR}" ]]; then
   echo "✅ ${OLD_DIR} 不存在，无需迁移。"
   exit 0
+fi
+
+# 通过 `ssh ... 'bash -s'` 执行时没有 TTY，sudo 一旦要密码就会卡死在这里。
+# 先探一下免密 sudo，探不到就明确报错而不是挂起。
+if ! sudo -n true 2>/dev/null; then
+  echo "❌ 需要免密 sudo（脚本要移动 /opt 下的目录）。" >&2
+  echo "   请先 ssh 登录到 VM，再在上面直接执行本脚本。" >&2
+  exit 1
 fi
 
 echo "==> 1/4 停止旧 compose 项目并删除其数据卷"

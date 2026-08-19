@@ -468,6 +468,9 @@ func beginGroupUsageRollupTriggerTestTx(t *testing.T, ctx context.Context, schem
 	tx, err := integrationDB.BeginTx(ctx, nil)
 	require.NoError(t, err)
 	require.NoError(t, setGroupUsageRollupTriggerSearchPath(ctx, tx, pq.QuoteIdentifier(schema)))
+	// The rollup fixture is seeded in Asia/Shanghai; timezone-specific tests override this after begin.
+	_, err = tx.ExecContext(ctx, "SET LOCAL TIME ZONE 'Asia/Shanghai'")
+	require.NoError(t, err)
 	return tx
 }
 

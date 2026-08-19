@@ -25,6 +25,7 @@
 | 主色与首页字标 | `frontend/tailwind.config.js`（primary 色阶改暖褐琥珀）、`frontend/src/views/HomeView.vue`（logo 旁 "slow watching" 字标） |
 | Azure 部署方案 | `deploy/azure/*`、`.github/workflows/azure-deploy.yml`、`docs/AZURE_DEPLOY_CN.md`、`.gitignore` 一行 |
 | 默认设置初始化修复 | `backend/internal/service/setting_parse.go`、`wire.go` 及其测试 |
+| Rollup CI 时区稳定性 | `backend/internal/repository/group_usage_rollup_trigger_integration_test.go` |
 | 摘除赞助商推广位 | `README*.md`、`assets/partners/`、`ProxyAdBanner` 及其引用、`tools/strip-upstream-ads.sh` |
 
 差异清单的**权威来源是 [`tools/sync-upstream.sh`](../tools/sync-upstream.sh) 里的 `EXPECTED` 数组**，

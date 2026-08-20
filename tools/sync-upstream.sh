@@ -16,6 +16,7 @@
 #     · Azure 部署方案         deploy/azure/*, .github/workflows/azure-deploy.yml,
 #                             docs/AZURE_DEPLOY_CN.md, .gitignore 一行
 #     · 默认设置初始化修复      backend/internal/service/{setting_parse,wire}.go 及其测试
+#     · Rollup CI 时区稳定性  backend/internal/repository/group_usage_rollup_trigger_integration_test.go
 #     · 摘除上游赞助商推广位    README*.md, assets/partners/, ProxyAdBanner 及其引用,
 #                             tools/strip-upstream-ads.sh
 #
@@ -89,6 +90,7 @@ EXPECTED=$(printf '%s\n' \
   '.gitignore' \
   'README.md' 'README_CN.md' 'README_JA.md' \
   'assets/logo.svg' \
+  'backend/internal/repository/group_usage_rollup_trigger_integration_test.go' \
   'backend/internal/service/setting_parse.go' \
   'backend/internal/service/setting_service_update_test.go' \
   'backend/internal/service/wire.go' \
